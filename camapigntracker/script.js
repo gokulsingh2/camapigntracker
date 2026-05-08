@@ -1,3 +1,5 @@
+const API = "https://web-production-ef9b1.up.railway.app";
+
 function loadPage(page) {
   const main = document.getElementById("mainContent");
   main.innerHTML = `<div class="loader">Loading...</div>`;
@@ -31,7 +33,7 @@ function loadPage(page) {
 
 // Register
 function register() {
-  fetch("https://web-production-ef9b1.up.railway.app/auth/register", {
+  fetch(API + "/auth/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -47,7 +49,7 @@ function register() {
 
 // Login
 function login() {
-  fetch("https://web-production-ef9b1.up.railway.app/auth/login", {
+  fetch(API + "/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -57,16 +59,20 @@ function login() {
   })
   .then(res => res.json())
   .then(data => {
-    localStorage.setItem("token", data.token);
-    alert("Login successful!");
-    window.location = "/camapigntracker/dashboard.html";
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+      alert("Login successful!");
+      window.location = "/camapigntracker/dashboard.html";
+    } else {
+      alert("Login failed: " + JSON.stringify(data));
+    }
   });
 }
 
 // Create Campaign
 function createCampaign() {
   const token = localStorage.getItem("token");
-  fetch("https://web-production-ef9b1.up.railway.app/campaign", {
+  fetch(API + "/campaign/create", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -76,20 +82,22 @@ function createCampaign() {
       name: document.getElementById("name").value,
       source: document.getElementById("source").value,
       medium: document.getElementById("medium").value,
-      budget: document.getElementById("budget").value
+      budget: document.getElementById("budget").value,
+      user_id: 1
     })
   })
   .then(res => res.json())
   .then(data => {
-    alert("Campaign created successfully!");
-  });
+    alert("Campaign created! ID: " + data.id);
+  })
+  .catch(err => alert("Error: " + err));
 }
 
 // Get Analytics
 function getAnalytics() {
   const token = localStorage.getItem("token");
   const id = document.getElementById("campaignId").value;
-  fetch("https://web-production-ef9b1.up.railway.app/analytics/" + id, {
+  fetch(API + "/analytics/" + id, {
     headers: { "Authorization": "Bearer " + token }
   })
   .then(res => res.json())
