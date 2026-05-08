@@ -2,25 +2,22 @@
 <html>
 <head>
   <title>Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/camapigntracker/style.css">
 </head>
 <body>
-
-<div class="dashboard">
-  <div class="sidebar">
-    <h2>Tracker</h2>
-    <ul>
-      <li onclick="loadPage('create')">Create</li>
-      <li onclick="loadPage('analytics')">Analytics</li>
-      <li onclick="logout()">Logout</li>
-    </ul>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h2>Tracker</h2>
+      <ul>
+        <li onclick="loadPage('create')">Create</li>
+        <li onclick="loadPage('analytics')">Analytics</li>
+        <li onclick="logout()">Logout</li>
+      </ul>
+    </div>
+    <div class="main" id="mainContent">
+      <h2>Welcome 📈</h2>
+    </div>
   </div>
-
-  <div class="main" id="mainContent">
-    <h2>Welcome 🚀</h2>
-  </div>
-</div>
-
-<script src="script.js"></script>
+  <script src="/camapigntracker/script.js"></script>
 </body>
 </html>
