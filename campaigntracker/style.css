@@ -249,6 +249,12 @@ p[onclick]:hover {
   transform: translateX(4px);
 }
 
+.sidebar li.active {
+  background: rgba(79,70,229,0.2);
+  color: var(--text-primary);
+  border-color: rgba(79,70,229,0.4);
+}
+
 .logout-btn:hover {
   background: rgba(239,68,68,0.1) !important;
   color: var(--danger) !important;

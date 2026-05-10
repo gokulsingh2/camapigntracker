@@ -1,6 +1,15 @@
 const API = "https://web-production-ef9b1.up.railway.app";
 
+function setActive(page) {
+  document.querySelectorAll(".sidebar li").forEach(li => li.classList.remove("active"));
+  const items = document.querySelectorAll(".sidebar li");
+  if (page === "create") items[0].classList.add("active");
+  if (page === "analytics") items[1].classList.add("active");
+  if (page === "campaigns") items[2].classList.add("active");
+}
+
 function loadWelcome() {
+  setActive("");
   const main = document.getElementById("mainContent");
   main.innerHTML = `
     <div class="welcome-screen">
@@ -43,6 +52,7 @@ function loadWelcome() {
 }
 
 function loadPage(page) {
+  setActive(page);
   const main = document.getElementById("mainContent");
   main.innerHTML = `<div class="loader">Loading...</div>`;
 
