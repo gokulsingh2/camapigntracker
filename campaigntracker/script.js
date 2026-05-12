@@ -107,7 +107,20 @@ function loadPage(page) {
           <input id="source" placeholder="Source (e.g. Google, Facebook)">
           <input id="medium" placeholder="Medium (e.g. CPC, Email)">
           <input id="budget" placeholder="Budget (₹)" type="number" min="0">
-          <button onclick="createCampaign()">Create Campaign</button>
+          <select id="status" style="
+            width: 100%; padding: 14px 16px; margin: 8px 0;
+            border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg-card); color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; outline: none; cursor: pointer;">
+            <option value="active">Active</option>
+            <option value="paused">Paused</option>
+            <option value="ended">Ended</option>
+          </select>
+          <label style="color: var(--text-secondary); font-size: 13px; margin-top: 8px; display: block;">Start Date</label>
+          <input id="start_date" type="date">
+          <label style="color: var(--text-secondary); font-size: 13px; margin-top: 8px; display: block;">End Date</label>
+          <input id="end_date" type="date">
+          <button onclick="createCampaign()" style="margin-top: 20px;">Create Campaign</button>
         </div>
       `;
     }
@@ -137,18 +150,11 @@ function loadPage(page) {
           <div class="fade">
             <h2>Analytics</h2>
             <select id="campaignSelect" style="
-              width: 100%;
-              padding: 14px 16px;
-              margin: 8px 0 16px;
-              border-radius: 10px;
-              border: 1px solid var(--border);
-              background: var(--bg-card);
-              color: var(--text-primary);
-              font-family: 'Plus Jakarta Sans', sans-serif;
-              font-size: 14px;
-              outline: none;
-              cursor: pointer;
-            ">
+              width: 100%; padding: 14px 16px; margin: 8px 0 16px;
+              border-radius: 10px; border: 1px solid var(--border);
+              background: var(--bg-card); color: var(--text-primary);
+              font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px;
+              outline: none; cursor: pointer;">
               <option value="">-- Select a Campaign --</option>
               ${options}
             </select>
@@ -180,13 +186,35 @@ function loadPage(page) {
         } else {
           let html = `<div class="fade"><h2>My Campaigns</h2>`;
           data.forEach(c => {
+            const statusColor = c.status === "active" ? "#10b981" : c.status === "paused" ? "#f59e0b" : "#ef4444";
+            const startDate = c.start_date ? new Date(c.start_date).toLocaleDateString() : "—";
+            const endDate = c.end_date ? new Date(c.end_date).toLocaleDateString() : "—";
             html += `
               <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                  <h3 style="color: var(--text-primary); margin-bottom: 8px;">ID: ${c.id} — ${c.name}</h3>
-                  <p style="color: var(--text-secondary); font-size: 13px;">Source: ${c.source} | Medium: ${c.medium} | Budget: ₹${c.budget}</p>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <h3 style="color: var(--text-primary);">ID: ${c.id} — ${c.name}</h3>
+                    <span style="font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: ${statusColor}22; color: ${statusColor}; border: 1px solid ${statusColor}44; text-transform: uppercase;">
+                      ${c.status || "active"}
+                    </span>
+                  </div>
+                  <p style="color: var(--text-secondary); font-size: 13px;">
+                    Source: ${c.source} | Medium: ${c.medium} | Budget: ₹${c.budget}
+                  </p>
+                  <p style="color: var(--text-secondary); font-size: 12px; margin-top: 4px;">
+                    📅 ${startDate} → ${endDate}
+                  </p>
                 </div>
-                <button onclick="deleteCampaign(${c.id})" style="width: auto; padding: 8px 16px; background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); margin-top: 0;">Delete</button>
+                <div style="display: flex; gap: 8px;">
+                  <button onclick="editCampaign(${c.id}, '${c.name}', '${c.source}', '${c.medium}', ${c.budget}, '${c.status || "active"}', '${c.start_date ? c.start_date.split("T")[0] : ""}', '${c.end_date ? c.end_date.split("T")[0] : ""}')"
+                    style="width: auto; padding: 8px 16px; background: rgba(79,70,229,0.15); color: var(--primary-light); border: 1px solid rgba(79,70,229,0.3); margin-top: 0;">
+                    Edit
+                  </button>
+                  <button onclick="deleteCampaign(${c.id})"
+                    style="width: auto; padding: 8px 16px; background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); margin-top: 0;">
+                    Delete
+                  </button>
+                </div>
               </div>
             `;
           });
@@ -199,6 +227,77 @@ function loadPage(page) {
       });
     }
   }, 300);
+}
+
+// ===== EDIT CAMPAIGN (show form) =====
+function editCampaign(id, name, source, medium, budget, status, start_date, end_date) {
+  const main = document.getElementById("mainContent");
+  main.innerHTML = `
+    <div class="fade">
+      <h2>Edit Campaign</h2>
+      <input id="edit_name" placeholder="Campaign Name" value="${name}">
+      <input id="edit_source" placeholder="Source" value="${source}">
+      <input id="edit_medium" placeholder="Medium" value="${medium}">
+      <input id="edit_budget" placeholder="Budget (₹)" type="number" min="0" value="${budget}">
+      <select id="edit_status" style="
+        width: 100%; padding: 14px 16px; margin: 8px 0;
+        border-radius: 10px; border: 1px solid var(--border);
+        background: var(--bg-card); color: var(--text-primary);
+        font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; outline: none; cursor: pointer;">
+        <option value="active" ${status === "active" ? "selected" : ""}>Active</option>
+        <option value="paused" ${status === "paused" ? "selected" : ""}>Paused</option>
+        <option value="ended" ${status === "ended" ? "selected" : ""}>Ended</option>
+      </select>
+      <label style="color: var(--text-secondary); font-size: 13px; margin-top: 8px; display: block;">Start Date</label>
+      <input id="edit_start_date" type="date" value="${start_date}">
+      <label style="color: var(--text-secondary); font-size: 13px; margin-top: 8px; display: block;">End Date</label>
+      <input id="edit_end_date" type="date" value="${end_date}">
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button onclick="submitEdit(${id})" style="flex: 1;">Save Changes</button>
+        <button onclick="loadPage('campaigns')" style="flex: 1; background: rgba(148,163,184,0.1); color: var(--text-secondary); border: 1px solid var(--border);">Cancel</button>
+      </div>
+    </div>
+  `;
+}
+
+// ===== SUBMIT EDIT =====
+function submitEdit(id) {
+  const name = document.getElementById("edit_name").value.trim();
+  const source = document.getElementById("edit_source").value.trim();
+  const medium = document.getElementById("edit_medium").value.trim();
+  const budget = document.getElementById("edit_budget").value.trim();
+  const status = document.getElementById("edit_status").value;
+  const start_date = document.getElementById("edit_start_date").value;
+  const end_date = document.getElementById("edit_end_date").value;
+
+  if (!name || !source || !medium || !budget) {
+    alert("All fields are required!");
+    return;
+  }
+  if (isNaN(budget) || Number(budget) < 0) {
+    alert("Budget must be a valid positive number!");
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+  fetch(API + "/campaign/edit/" + id, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify({ name, source, medium, budget, status, start_date, end_date })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.message === "Campaign updated") {
+      alert("Campaign updated successfully!");
+      loadPage("campaigns");
+    } else {
+      alert(data.message || "Update failed!");
+    }
+  })
+  .catch(() => alert("Failed to update campaign. Try again!"));
 }
 
 // ===== REGISTER =====
@@ -270,6 +369,9 @@ function createCampaign() {
   const source = document.getElementById("source").value.trim();
   const medium = document.getElementById("medium").value.trim();
   const budget = document.getElementById("budget").value.trim();
+  const status = document.getElementById("status").value;
+  const start_date = document.getElementById("start_date").value;
+  const end_date = document.getElementById("end_date").value;
 
   if (!name || !source || !medium || !budget) {
     alert("All fields are required!");
@@ -287,7 +389,7 @@ function createCampaign() {
       "Content-Type": "application/json",
       "Authorization": "Bearer " + token
     },
-    body: JSON.stringify({ name, source, medium, budget })
+    body: JSON.stringify({ name, source, medium, budget, status, start_date, end_date })
   })
   .then(res => res.json())
   .then(data => {
@@ -307,7 +409,7 @@ function createCampaign() {
   .catch(() => alert("Failed to create campaign. Try again!"));
 }
 
-// ===== GET ANALYTICS =====
+// ===== GET ANALYTICS WITH CHART =====
 function getAnalytics() {
   const token = localStorage.getItem("token");
   const select = document.getElementById("campaignSelect");
@@ -339,7 +441,7 @@ function getAnalytics() {
         <h3 style="color: var(--text-secondary); font-size: 14px; font-weight: 600; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px;">
           Results for: ${data.name}
         </h3>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
           <div class="card" style="text-align: center; padding: 28px 20px;">
             <div style="font-size: 36px; font-weight: 800; color: var(--primary-light);">${data.clicks}</div>
             <div style="font-size: 13px; color: var(--text-secondary); margin-top: 6px; font-weight: 500;">Total Clicks</div>
@@ -357,8 +459,49 @@ function getAnalytics() {
             <div style="font-size: 13px; color: var(--text-secondary); margin-top: 6px; font-weight: 500;">Conversion Rate</div>
           </div>
         </div>
+        <div class="card" style="padding: 24px;">
+          <h3 style="color: var(--text-primary); font-size: 15px; font-weight: 600; margin-bottom: 20px;">Performance Overview</h3>
+          <canvas id="analyticsChart" height="120"></canvas>
+        </div>
       </div>
     `;
+
+    // Draw chart
+    const ctx = document.getElementById("analyticsChart").getContext("2d");
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Clicks", "Conversions", "Revenue (₹)", "Conv. Rate (%)"],
+        datasets: [{
+          label: data.name,
+          data: [data.clicks, data.conversions, parseFloat(data.revenue), parseFloat(convRate)],
+          backgroundColor: [
+            "rgba(79,70,229,0.7)",
+            "rgba(16,185,129,0.7)",
+            "rgba(6,182,212,0.7)",
+            "rgba(129,140,248,0.7)"
+          ],
+          borderColor: [
+            "rgba(79,70,229,1)",
+            "rgba(16,185,129,1)",
+            "rgba(6,182,212,1)",
+            "rgba(129,140,248,1)"
+          ],
+          borderWidth: 1,
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { color: "#94a3b8" } }
+        },
+        scales: {
+          x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(148,163,184,0.1)" } },
+          y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(148,163,184,0.1)" }, beginAtZero: true }
+        }
+      }
+    });
   })
   .catch(() => {
     document.getElementById("result").innerHTML = `<p style="color:var(--danger); margin-top:16px;">Failed to load analytics.</p>`;
