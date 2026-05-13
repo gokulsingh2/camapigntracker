@@ -2,25 +2,36 @@
 <html>
 <head>
   <title>Dashboard - Campaign Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/campaigntracker/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+
+  <!-- Mobile menu button -->
+  <button class="menu-btn" onclick="toggleSidebar()" id="menuBtn">&#9776;</button>
+
+  <!-- Overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
   <div class="dashboard">
-    <div class="sidebar">
-      <div class="sidebar-brand" onclick="loadWelcome()" style="cursor:pointer;">
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-brand" onclick="loadWelcome(); closeSidebar();" style="cursor:pointer;">
         <div class="brand-icon">CT</div>
         <h2>Tracker</h2>
       </div>
       <ul>
-        <li onclick="loadPage('create')">
+        <li onclick="loadPage('create'); closeSidebar();">
           <span class="nav-icon">+</span> Create Campaign
         </li>
-        <li onclick="loadPage('analytics')">
+        <li onclick="loadPage('analytics'); closeSidebar();">
           <span class="nav-icon">&#9998;</span> Analytics
         </li>
-        <li onclick="loadPage('campaigns')">
+        <li onclick="loadPage('campaigns'); closeSidebar();">
           <span class="nav-icon">&#9776;</span> My Campaigns
+        </li>
+        <li onclick="loadPage('profile'); closeSidebar();">
+          <span class="nav-icon">&#128100;</span> Profile
         </li>
         <li class="logout-btn" onclick="logout()">
           <span class="nav-icon">&#8594;</span> Logout
@@ -37,7 +48,7 @@
           <div class="stat-card">
             <div class="stat-icon">&#128196;</div>
             <div class="stat-info">
-              <div class="stat-number">1</div>
+              <div class="stat-number">0</div>
               <div class="stat-label">Campaigns</div>
             </div>
           </div>
@@ -67,8 +78,20 @@
       </div>
     </div>
   </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="/campaigntracker/script.js"></script>
-  
+  <script src="/campaigntracker/script.js"></script>
+  <script>
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+      document.getElementById("sidebarOverlay").classList.toggle("active");
+    }
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("sidebarOverlay").classList.remove("active");
+    }
+    // Load real stats on page load
+    loadWelcome();
+  </script>
 </body>
 </html>
