@@ -58,20 +58,29 @@ router.post("/conversion", verifyToken, (req, res) => {
 
         // Send conversion notification email
         try {
-          // Get campaign name and user email
           db.query(`
             SELECT c.name AS campaign_name, u.email AS user_email, u.name AS user_name
             FROM campaigns c
             JOIN users u ON c.user_id = u.id
             WHERE c.id = ?
           `, [campaign_id], async (err, rows) => {
-            if (!err && rows.length > 0) {
+            if (err) {
+              console.error("DB error for email:", err.message);
+              return;
+            }
+            if (rows.length > 0) {
               const { campaign_name, user_email, user_name } = rows[0];
-              await sendConversionEmail(user_email, user_name, campaign_name, type, revenue || 0);
+              console.log("Sending email to:", user_email);
+              try {
+                await sendConversionEmail(user_email, user_name, campaign_name, type, revenue || 0);
+                console.log("Email sent successfully!");
+              } catch (mailErr) {
+                console.error("Mail send error:", mailErr.message);
+              }
             }
           });
         } catch (emailErr) {
-          console.error("Email notification error:", emailErr);
+          console.error("Email notification error:", emailErr.message);
         }
 
         res.json({ message: "Conversion tracked" });
