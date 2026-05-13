@@ -11,10 +11,10 @@ if (document.querySelector(".dashboard")) {
 function setActive(page) {
   document.querySelectorAll(".sidebar li").forEach(li => li.classList.remove("active"));
   const items = document.querySelectorAll(".sidebar li");
-  if (page === "create") items[0].classList.add("active");
-  if (page === "analytics") items[1].classList.add("active");
-  if (page === "campaigns") items[2].classList.add("active");
-  if (page === "profile") items[3].classList.add("active");
+  if (page === "profile") items[0].classList.add("active");
+  if (page === "create") items[1].classList.add("active");
+  if (page === "analytics") items[2].classList.add("active");
+  if (page === "campaigns") items[3].classList.add("active");
 }
 
 // ===== WELCOME SCREEN WITH REAL STATS =====
@@ -235,14 +235,16 @@ function loadPage(page) {
       })
       .then(res => res.json())
       .then(user => {
+        if (user.message) {
+          main.innerHTML = `<div class="fade"><h2>My Profile</h2><p style="color:var(--danger)">${user.message}</p></div>`;
+          return;
+        }
         const joined = new Date(user.created_at).toLocaleDateString("en-IN", {
           year: "numeric", month: "long", day: "numeric"
         });
         main.innerHTML = `
           <div class="fade">
             <h2>My Profile</h2>
-
-            <!-- Profile Card -->
             <div class="card" style="display: flex; align-items: center; gap: 20px; margin-bottom: 8px;">
               <div style="width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; color: white; flex-shrink: 0;">
                 ${user.name.charAt(0).toUpperCase()}
@@ -253,15 +255,11 @@ function loadPage(page) {
                 <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Member since ${joined}</div>
               </div>
             </div>
-
-            <!-- Update Name -->
             <div class="card" style="margin-top: 16px;">
               <h3 style="color: var(--text-primary); font-size: 15px; font-weight: 600; margin-bottom: 16px;">Update Name</h3>
               <input id="new_name" placeholder="New Name" value="${user.name}">
               <button onclick="updateName()" style="margin-top: 12px;">Save Name</button>
             </div>
-
-            <!-- Update Password -->
             <div class="card" style="margin-top: 16px;">
               <h3 style="color: var(--text-primary); font-size: 15px; font-weight: 600; margin-bottom: 16px;">Change Password</h3>
               <input id="current_password" type="password" placeholder="Current Password">
@@ -311,18 +309,9 @@ function updatePassword() {
   const newPassword = document.getElementById("new_password").value.trim();
   const confirmPassword = document.getElementById("confirm_password").value.trim();
 
-  if (!currentPassword || !newPassword || !confirmPassword) {
-    alert("All fields are required!");
-    return;
-  }
-  if (newPassword.length < 6) {
-    alert("New password must be at least 6 characters!");
-    return;
-  }
-  if (newPassword !== confirmPassword) {
-    alert("New passwords do not match!");
-    return;
-  }
+  if (!currentPassword || !newPassword || !confirmPassword) { alert("All fields are required!"); return; }
+  if (newPassword.length < 6) { alert("New password must be at least 6 characters!"); return; }
+  if (newPassword !== confirmPassword) { alert("New passwords do not match!"); return; }
 
   const token = localStorage.getItem("token");
   fetch(API + "/profile/update-password", {
@@ -386,14 +375,8 @@ function submitEdit(id) {
   const start_date = document.getElementById("edit_start_date").value;
   const end_date = document.getElementById("edit_end_date").value;
 
-  if (!name || !source || !medium || !budget) {
-    alert("All fields are required!");
-    return;
-  }
-  if (isNaN(budget) || Number(budget) < 0) {
-    alert("Budget must be a valid positive number!");
-    return;
-  }
+  if (!name || !source || !medium || !budget) { alert("All fields are required!"); return; }
+  if (isNaN(budget) || Number(budget) < 0) { alert("Budget must be a valid positive number!"); return; }
 
   const token = localStorage.getItem("token");
   fetch(API + "/campaign/edit/" + id, {
